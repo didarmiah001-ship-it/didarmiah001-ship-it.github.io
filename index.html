@@ -1,645 +1,563 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { 
-  Menu, X, Download, Mail, ExternalLink, Globe, 
-  Smartphone, Monitor, Layout, Server, Wrench, ArrowRight 
-} from 'lucide-react';
-
-const translations = {
-  en: {
-    nav: { home: "Home", about: "About", services: "Services", projects: "Projects", skills: "Skills", contact: "Contact", letsTalk: "Let's Talk" },
-    hero: {
-      badge: "Available for New Projects",
-      greeting: "Didar ",
-      highlight: "Miah",
-      title: "Independent App Developer\n& Digital Creator",
-      desc: "I build modern mobile applications, web solutions and digital products with a focus on clean design, performance and real-world impact.",
-      viewProjects: "View My Projects",
-      contactMe: "Contact Me"
-    },
-    about: {
-      heading: "About Me",
-      desc: "I’m Didar Miah, an independent app developer and digital creator. I specialize in mobile app development, web solutions and modern UI/UX design. I love creating useful digital products that solve real problems and make life easier.",
-      downloadCv: "Download CV",
-      qualities: ["Creative Problem Solver", "Modern UI/UX Focused", "Reliable & Dedicated", "Always Learning"]
-    },
-    services: {
-      heading: "What I Do",
-      subtitle: "I provide end-to-end digital solutions from idea to launch.",
-      items: [
-        { title: "Mobile App Development", desc: "Android & iOS apps with modern technology." },
-        { title: "Web Development", desc: "Modern, responsive and high-performance websites." },
-        { title: "UI/UX Design", desc: "Clean, modern and user-friendly interfaces." },
-        { title: "Digital Solutions", desc: "Custom digital solutions for businesses and organizations." },
-        { title: "App Maintenance", desc: "Ongoing support and updates to keep applications running smoothly." }
-      ]
-    },
-    projects: {
-      heading: "My Projects",
-      desc: "Useful digital platforms built with modern technology for real people and real needs.",
-      visitWebsite: "Visit Website",
-      viewProject: "View Project",
-      mia: {
-        category: "E-Commerce Platform",
-        desc: "A modern shopping and digital commerce platform designed to provide a simple and convenient experience.",
-        features: ["Online Shopping", "Secure Payment", "Mobile Friendly"]
-      },
-      dasattar: {
-        category: "Community & Welfare Platform",
-        desc: "A digital platform for managing members, donations, activities and community welfare.",
-        features: ["Member Management", "Donation Tracking", "Activity Management", "Financial Reports"]
-      }
-    },
-    skills: { heading: "Skills & Technologies" },
-    process: {
-      heading: "How I Work",
-      steps: [
-        { title: "Plan", desc: "Understand requirements and define the solution." },
-        { title: "Design", desc: "Create modern and user-friendly interfaces." },
-        { title: "Develop", desc: "Build clean and scalable software." },
-        { title: "Launch", desc: "Test, deploy and provide support." }
-      ]
-    },
-    contact: {
-      heading: "Let’s Build Something Great Together",
-      desc: "Have a project idea or want to collaborate? Feel free to reach out. I'm always open to new opportunities.",
-      sendMsg: "Send Message",
-      location: "Location",
-      locValue: "Bangladesh"
-    },
-    footer: {
-      tagline: "Independent App Developer & Digital Creator",
-      copyright: "© 2026 Didar Miah. All rights reserved."
-    }
-  },
-  bn: {
-    nav: { home: "হোম", about: "সম্পর্কে", services: "সার্ভিস", projects: "প্রজেক্ট", skills: "দক্ষতা", contact: "যোগাযোগ", letsTalk: "কথা বলি" },
-    hero: {
-      badge: "নতুন প্রজেক্টের জন্য উন্মুক্ত",
-      greeting: "দিদার ",
-      highlight: "মিয়া",
-      title: "স্বাধীন অ্যাপ ডেভেলপার\nও ডিজিটাল ক্রিয়েটর",
-      desc: "আধুনিক ও ব্যবহারবান্ধব অ্যাপ্লিকেশন তৈরি করি, যা মানুষের জীবনে বাস্তব সমাধান এনে দেয়।",
-      viewProjects: "আমার প্রজেক্টগুলো দেখুন",
-      contactMe: "যোগাযোগ করুন"
-    },
-    about: {
-      heading: "আমি যা করি",
-      desc: "আমি দিদার মিয়া, একজন স্বাধীন অ্যাপ ডেভেলপার ও ডিজিটাল ক্রিয়েটর। আধুনিক মোবাইল অ্যাপ, ওয়েব সলিউশন এবং UI/UX ডিজাইন নিয়ে কাজ করি। মানুষের বাস্তব সমস্যা সমাধান করে এমন সহজ, ব্যবহারবান্ধব ও কার্যকর ডিজিটাল পণ্য তৈরি করতে ভালোবাসি।",
-      downloadCv: "সিভি ডাউনলোড",
-      qualities: ["সৃজনশীল সমস্যা সমাধানকারী", "আধুনিক UI/UX ফোকাসড", "নির্ভরযোগ্য ও নিবেদিত", "সর্বদা শিখতে আগ্রহী"]
-    },
-    services: {
-      heading: "আমার পরিষেবাসমূহ",
-      subtitle: "আইডিয়া থেকে লঞ্চ পর্যন্ত আমি সম্পূর্ণ ডিজিটাল সলিউশন প্রদান করি।",
-      items: [
-        { title: "মোবাইল অ্যাপ ডেভেলপমেন্ট", desc: "আধুনিক প্রযুক্তির সাহায্যে অ্যান্ড্রয়েড ও আইওএস অ্যাপ।" },
-        { title: "ওয়েব ডেভেলপমেন্ট", desc: "আধুনিক, রেস্পন্সিভ এবং দ্রুতগতির ওয়েবসাইট।" },
-        { title: "UI/UX ডিজাইন", desc: "ক্লিন, আধুনিক এবং ব্যবহারবান্ধব ইন্টারফেস।" },
-        { title: "ডিজিটাল সলিউশন", desc: "ব্যবসা এবং প্রতিষ্ঠানের জন্য কাস্টম ডিজিটাল সমাধান।" },
-        { title: "অ্যাপ রক্ষণাবেক্ষণ", desc: "অ্যাপ্লিকেশনগুলো মসৃণভাবে চালানোর জন্য চলমান সাপোর্ট এবং আপডেট।" }
-      ]
-    },
-    projects: {
-      heading: "আমার প্রজেক্টসমূহ",
-      desc: "আধুনিক প্রযুক্তি দিয়ে তৈরি মানুষের বাস্তব প্রয়োজনের জন্য প্রয়োজনীয় ডিজিটাল প্ল্যাটফর্ম।",
-      visitWebsite: "ওয়েবসাইট ভিজিট করুন",
-      viewProject: "প্রজেক্ট দেখুন",
-      mia: {
-        category: "ই-কমার্স প্ল্যাটফর্ম",
-        desc: "একটি আধুনিক শপিং ও ডিজিটাল কমার্স প্ল্যাটফর্ম, যা সহজ ও সুবিধাজনক কেনাকাটার অভিজ্ঞতা দেওয়ার জন্য তৈরি।",
-        features: ["অনলাইন শপিং", "নিরাপদ পেমেন্ট", "মোবাইল ফ্রেন্ডলি"]
-      },
-      dasattar: {
-        category: "কমিউনিটি ও ওয়েলফেয়ার প্ল্যাটফর্ম",
-        desc: "সদস্য, অনুদান, কার্যক্রম এবং সামাজিক কল্যাণ ব্যবস্থাপনার জন্য একটি ডিজিটাল প্ল্যাটফর্ম।",
-        features: ["সদস্য ব্যবস্থাপনা", "অনুদান ট্র্যাকিং", "কার্যক্রম ব্যবস্থাপনা", "আর্থিক প্রতিবেদন"]
-      }
-    },
-    skills: { heading: "যে প্রযুক্তিগুলো নিয়ে কাজ করি" },
-    process: {
-      heading: "কাজের ধাপ",
-      steps: [
-        { title: "পরিকল্পনা", desc: "প্রয়োজনীয়তা বোঝা এবং সমাধান নির্ধারণ করা।" },
-        { title: "ডিজাইন", desc: "আধুনিক এবং ব্যবহারবান্ধব ইন্টারফেস তৈরি করা।" },
-        { title: "ডেভেলপ", desc: "ক্লিন এবং স্কেলেবল সফটওয়্যার তৈরি করা।" },
-        { title: "লঞ্চ", desc: "টেস্ট, ডিপ্লয় এবং সাপোর্ট প্রদান করা।" }
-      ]
-    },
-    contact: {
-      heading: "চলুন একসাথে কিছু অসাধারণ তৈরি করি",
-      desc: "আপনার কি কোনো প্রজেক্ট আইডিয়া আছে বা একসাথে কাজ করতে চান? নির্দ্বিধায় যোগাযোগ করুন। আমি সবসময় নতুন সুযোগের জন্য উন্মুক্ত।",
-      sendMsg: "মেসেজ পাঠান",
-      location: "অবস্থান",
-      locValue: "বাংলাদেশ"
-    },
-    footer: {
-      tagline: "প্রযুক্তির মাধ্যমে বাস্তব সমাধান",
-      copyright: "© ২০২৬ দিদার মিয়া। সর্বস্বত্ব সংরক্ষিত।"
-    }
-  }
-};
-
-const LanguageContext = createContext();
-
-const BrandIcons = {
-  WhatsApp: (props) => (
-    <svg viewBox="0 0 24 24" fill="#25D366" {...props}>
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
-    </svg>
-  ),
-  Facebook: (props) => (
-    <svg viewBox="0 0 24 24" fill="#1877F2" {...props}>
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-    </svg>
-  ),
-  YouTube: (props) => (
-    <svg viewBox="0 0 24 24" fill="#FF0000" {...props}>
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-    </svg>
-  ),
-  GitHub: (props) => (
-    <svg viewBox="0 0 24 24" fill="#181717" {...props}>
-      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/>
-    </svg>
-  ),
-  Email: (props) => (
-    <svg viewBox="0 0 24 24" fill="#EA4335" {...props}>
-      <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
-    </svg>
-  )
-};
-
-const Header = ({ activeSection }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { lang, setLang, t } = useContext(LanguageContext);
-
-  const navLinks = [
-    { id: 'home', label: t.nav.home },
-    { id: 'about', label: t.nav.about },
-    { id: 'services', label: t.nav.services },
-    { id: 'projects', label: t.nav.projects },
-    { id: 'skills', label: t.nav.skills },
-    { id: 'contact', label: t.nav.contact },
-  ];
-
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) {
-      window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
-    }
-    setIsOpen(false);
-  };
-
-  return (
-    <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-slate-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        
-        {/* Logo */}
-        <div 
-          className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => scrollTo('home')}
-        >
-          <div className="w-10 h-10 bg-slate-900 text-white flex items-center justify-center rounded-xl font-bold text-xl group-hover:bg-slate-800 transition-colors shadow-sm">
-            DM
-          </div>
-          <div>
-            <h1 className="font-bold text-lg text-slate-900 leading-tight tracking-tight">Didar Miah</h1>
-            <p className="text-xs text-slate-500 font-medium">App Developer</p>
-          </div>
-        </div>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => {
-            const isActive = activeSection === link.id;
-            return (
-              <button
-                key={link.id}
-                onClick={() => scrollTo(link.id)}
-                className={`text-sm font-semibold transition-all duration-300 relative ${
-                  isActive 
-                    ? 'text-sky-600 drop-shadow-[0_0_8px_rgba(2,132,199,0.5)]' 
-                    : 'text-slate-600 hover:text-sky-600 hover:drop-shadow-[0_0_8px_rgba(2,132,199,0.5)]'
-                }`}
-              >
-                {link.label}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Right Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          <button 
-            onClick={() => setLang(lang === 'en' ? 'bn' : 'en')}
-            className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors border border-slate-200 px-4 py-1.5 rounded-full hover:bg-slate-50"
-          >
-            <Globe size={16} />
-            {lang === 'en' ? 'BN' : 'EN'}
-          </button>
-          <button 
-            onClick={() => scrollTo('contact')}
-            className="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
-          >
-            {t.nav.letsTalk}
-          </button>
-        </div>
-
-        {/* Mobile Toggle */}
-        <button className="md:hidden text-slate-900" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-slate-100 shadow-xl py-6 px-6 flex flex-col gap-4">
-          {navLinks.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => scrollTo(link.id)}
-              className={`text-left text-lg font-semibold py-2 border-b border-slate-50 ${activeSection === link.id ? 'text-sky-600' : 'text-slate-600'}`}
-            >
-              {link.label}
-            </button>
-          ))}
-          <div className="flex items-center justify-between mt-4">
-             <button 
-              onClick={() => { setLang(lang === 'en' ? 'bn' : 'en'); setIsOpen(false); }}
-              className="flex items-center gap-2 text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 px-4 py-2 rounded-full w-full justify-center"
-            >
-              <Globe size={18} />
-              Switch to {lang === 'en' ? 'Bangla' : 'English'}
-            </button>
-          </div>
-        </div>
-      )}
-    </header>
-  );
-};
-
-const Hero = () => {
-  const { t } = useContext(LanguageContext);
-  return (
-    <section id="home" className="pt-32 pb-24 lg:pt-40 lg:pb-32 px-6 max-w-5xl mx-auto flex flex-col justify-center min-h-[90vh]">
-      
-      <div className="w-full">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold mb-8 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-          {t.hero.badge}
-        </div>
-        
-        {/* Main Typography */}
-        <h1 className="text-6xl md:text-7xl lg:text-8xl font-extrabold text-slate-900 leading-tight mb-4 tracking-tight">
-          {t.hero.greeting}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-sky-500">
-            {t.hero.highlight}
-          </span>
-        </h1>
-        
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-8 whitespace-pre-line leading-snug">
-          {t.hero.title}
-        </h2>
-        
-        <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-3xl leading-relaxed font-medium">
-          {t.hero.desc}
-        </p>
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-14">
-          <button 
-            onClick={() => document.getElementById('projects').scrollIntoView({behavior: 'smooth'})}
-            className="w-full sm:w-auto justify-center bg-slate-900 text-white px-10 py-5 rounded-full font-semibold text-lg hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg hover:shadow-xl"
-          >
-            {t.hero.viewProjects}
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-          <button 
-            onClick={() => document.getElementById('contact').scrollIntoView({behavior: 'smooth'})}
-            className="w-full sm:w-auto justify-center bg-white text-slate-900 border border-slate-200 shadow-sm px-10 py-5 rounded-full font-semibold text-lg hover:border-slate-400 hover:bg-slate-50 transition-all"
-          >
-            {t.hero.contactMe}
-          </button>
-        </div>
-
-        {/* Social Links Row */}
-        <div className="flex items-center gap-6">
-          <a href="https://wa.me/8801823057578" target="_blank" rel="noreferrer" className="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md"><BrandIcons.WhatsApp className="w-8 h-8" /></a>
-          <a href="#" className="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md"><BrandIcons.Facebook className="w-8 h-8" /></a>
-          <a href="#" className="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md"><BrandIcons.YouTube className="w-8 h-8" /></a>
-          <a href="https://github.com/didarmiah001-ship-it" target="_blank" rel="noreferrer" className="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md"><BrandIcons.GitHub className="w-8 h-8" /></a>
-          <a href="mailto:didarmiah001@gmail.com" className="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md"><BrandIcons.Email className="w-8 h-8" /></a>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const About = () => {
-  const { t } = useContext(LanguageContext);
-  return (
-    <section id="about" className="py-24 border-t border-slate-100">
-      <div className="max-w-4xl mx-auto px-6">
-        <h2 className="text-4xl font-extrabold text-slate-900 mb-8">{t.about.heading}</h2>
-        <p className="text-xl text-slate-600 leading-relaxed font-medium mb-10">
-          {t.about.desc}
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-12">
-          {t.about.qualities.map((quality, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
-              <span className="text-slate-900 font-semibold">{quality}</span>
-            </div>
-          ))}
-        </div>
-        <div>
-           <button className="bg-white border border-slate-200 text-slate-900 px-8 py-4 rounded-full font-semibold hover:border-slate-400 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
-              <Download size={18} /> {t.about.downloadCv}
-           </button>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Services = () => {
-  const { t } = useContext(LanguageContext);
-  const icons = [
-    <Smartphone className="text-sky-600" size={28} />, 
-    <Monitor className="text-purple-600" size={28} />, 
-    <Layout className="text-pink-600" size={28} />, 
-    <Server className="text-emerald-600" size={28} />, 
-    <Wrench className="text-amber-500" size={28} />
-  ];
-  
-  return (
-    <section id="services" className="py-24 border-t border-slate-100 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-16 max-w-2xl">
-          <h2 className="text-4xl font-extrabold text-slate-900 mb-4">{t.services.heading}</h2>
-          <p className="text-slate-600 text-xl font-medium">{t.services.subtitle}</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {t.services.items.map((service, i) => (
-            <div key={i} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
-              <div className="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shrink-0">
-                {icons[i % icons.length]}
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3 shrink-0">{service.title}</h3>
-              <p className="text-slate-600 leading-relaxed font-medium flex-grow">{service.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Projects = () => {
-  const { t } = useContext(LanguageContext);
-  
-  return (
-    <section id="projects" className="py-24 border-t border-slate-100 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-16">
-          <h2 className="text-4xl font-extrabold text-slate-900 mb-4">{t.projects.heading}</h2>
-          <p className="text-slate-600 text-xl font-medium">{t.projects.desc}</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-          {/* Project 1 - MIA ONE */}
-          <div className="bg-white border border-slate-200 shadow-sm p-8 md:p-10 rounded-3xl group hover:shadow-lg transition-shadow flex flex-col h-full">
-            <span className="text-purple-600 font-bold tracking-widest uppercase text-xs mb-3 block shrink-0">{t.projects.mia.category}</span>
-            <h3 className="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">MIA ONE</h3>
-            <p className="text-slate-600 text-lg mb-8 leading-relaxed font-medium flex-grow">
-              {t.projects.mia.desc}
-            </p>
-            <div className="flex flex-wrap gap-3 mb-8 shrink-0">
-              {t.projects.mia.features.map((f, i) => (
-                <div key={i} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>{f}
-                </div>
-              ))}
-            </div>
-            <div className="shrink-0 mt-auto">
-              <a href="https://miaone.shop" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-purple-600 transition-colors shadow-sm">
-                {t.projects.visitWebsite} <ExternalLink size={18} />
-              </a>
-            </div>
-          </div>
-
-          {/* Project 2 - Dasattar Foundation */}
-          <div className="bg-white border border-slate-200 shadow-sm p-8 md:p-10 rounded-3xl group hover:shadow-lg transition-shadow flex flex-col h-full">
-            <span className="text-emerald-600 font-bold tracking-widest uppercase text-xs mb-3 block shrink-0">{t.projects.dasattar.category}</span>
-            <h3 className="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">Dasattar Foundation</h3>
-            <p className="text-slate-600 text-lg mb-8 leading-relaxed font-medium flex-grow">
-              {t.projects.dasattar.desc}
-            </p>
-            <div className="flex flex-wrap gap-3 mb-8 shrink-0">
-              {t.projects.dasattar.features.map((f, i) => (
-                <div key={i} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>{f}
-                </div>
-              ))}
-            </div>
-            <div className="shrink-0 mt-auto">
-              <a href="https://dasattarfoundationxyz.xyz/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-emerald-600 transition-colors shadow-sm">
-                {t.projects.viewProject} <ExternalLink size={18} />
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Skills = () => {
-  const { t } = useContext(LanguageContext);
-  const skillsList = ["Flutter", "React", "Firebase", "Node.js", "JavaScript", "HTML5", "CSS3", "Figma", "Git", "GitHub"];
-  
-  return (
-    <section id="skills" className="py-24 border-t border-slate-100 px-6 text-center max-w-4xl mx-auto">
-      <h2 className="text-4xl font-extrabold text-slate-900 mb-12">{t.skills.heading}</h2>
-      <div className="flex flex-wrap justify-center gap-4">
-        {skillsList.map((skill, i) => (
-          <div key={i} className="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">
-            {skill}
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-const Process = () => {
-  const { t } = useContext(LanguageContext);
-  return (
-    <section className="py-24 border-t border-slate-100 px-6">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-extrabold text-center text-slate-900 mb-20">{t.process.heading}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
-          {/* Connecting line for desktop */}
-          <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-[2px] bg-slate-100"></div>
-          
-          {t.process.steps.map((step, i) => (
-            <div key={i} className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-20 h-20 bg-white border-[6px] border-slate-50 shadow-md rounded-full flex items-center justify-center text-xl font-bold text-sky-600 mb-6 group hover:border-sky-100 transition-colors">
-                0{i + 1}
-              </div>
-              <h3 className="text-xl font-bold mb-3 text-slate-900">{step.title}</h3>
-              <p className="text-slate-500 font-medium leading-relaxed">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Contact = () => {
-  const { t } = useContext(LanguageContext);
-  return (
-    <section id="contact" className="py-24 border-t border-slate-100 px-6">
-      <div className="max-w-5xl mx-auto bg-[#0f172a] rounded-[2.5rem] p-10 md:p-16 lg:p-20 text-center shadow-2xl">
-        
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
-          {t.contact.heading}
-        </h2>
-        
-        <p className="text-slate-300 text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-          {t.contact.desc}
-        </p>
-        
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-16">
-            <a 
-              href="mailto:didarmiah001@gmail.com" 
-              className="w-full sm:w-auto bg-white text-slate-900 px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-lg"
-            >
-              <Mail size={22} /> {t.contact.sendMsg}
-            </a>
-            <a 
-              href="https://wa.me/8801823057578" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="w-full sm:w-auto bg-[#25D366] text-white px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-lg"
-            >
-              <BrandIcons.WhatsApp className="w-6 h-6 fill-white" /> WhatsApp
-            </a>
-        </div>
-        
-        <div className="flex flex-col md:flex-row items-center justify-center gap-x-8 gap-y-4 text-white/90 font-medium text-sm md:text-base">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-rose-500 rounded-full"></span>
-            {t.contact.location}: {t.contact.locValue}
-          </div>
-          <div className="hidden md:block w-1 h-1 bg-white/20 rounded-full"></div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-sky-500 rounded-full"></span>
-            didarmiah001@gmail.com
-          </div>
-          <div className="hidden md:block w-1 h-1 bg-white/20 rounded-full"></div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span>
-            01823057578
-          </div>
-        </div>
-        
-      </div>
-    </section>
-  );
-};
-
-const Footer = () => {
-  const { t } = useContext(LanguageContext);
-  return (
-    <footer className="border-t border-slate-100 bg-white pt-16 pb-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
-          
-          <div className="flex items-center gap-4 text-left">
-            <div className="w-12 h-12 bg-slate-900 text-white flex items-center justify-center rounded-xl font-bold text-xl shadow-sm">
-              DM
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 leading-tight">Didar Miah</h2>
-              <p className="text-slate-500 font-medium text-sm">{t.footer.tagline}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-6">
-            <a href="https://wa.me/8801823057578" target="_blank" rel="noreferrer" className="hover:-translate-y-1 transition-transform drop-shadow-sm"><BrandIcons.WhatsApp className="w-6 h-6" /></a>
-            <a href="#" className="hover:-translate-y-1 transition-transform drop-shadow-sm"><BrandIcons.Facebook className="w-6 h-6" /></a>
-            <a href="#" className="hover:-translate-y-1 transition-transform drop-shadow-sm"><BrandIcons.YouTube className="w-6 h-6" /></a>
-            <a href="https://github.com/didarmiah001-ship-it" target="_blank" rel="noreferrer" className="hover:-translate-y-1 transition-transform drop-shadow-sm"><BrandIcons.GitHub className="w-6 h-6" /></a>
-            <a href="mailto:didarmiah001@gmail.com" className="hover:-translate-y-1 transition-transform drop-shadow-sm"><BrandIcons.Email className="w-6 h-6" /></a>
-          </div>
-          
-        </div>
-        
-        <div className="flex justify-center border-t border-slate-100 pt-8">
-          <p className="text-slate-400 font-medium text-sm text-center">{t.footer.copyright}</p>
-        </div>
-      </div>
-    </footer>
-  );
-};
-
-const App = () => {
-  const [lang, setLang] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('portfolio_lang') || 'en';
-    }
-    return 'en';
-  });
-  
-  const [activeSection, setActiveSection] = useState('home');
-
-  useEffect(() => {
-    localStorage.setItem('portfolio_lang', lang);
-  }, [lang]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['home', 'about', 'services', 'projects', 'skills', 'contact'];
-      const scrollPos = window.scrollY + 200; 
-      
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el && el.offsetTop <= scrollPos && el.offsetTop + el.offsetHeight > scrollPos) {
-          setActiveSection(section);
-        }
-      }
-    };
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didar Miah | Independent App Developer & Digital Creator</title>
+    <meta name="description" content="Official portfolio of Didar Miah — Independent App Developer & Digital Creator building modern mobile apps, websites and digital solutions.">
     
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; }
+        .whitespace-pre-line { white-space: pre-line; }
+    </style>
+</head>
+<body class="bg-white text-slate-900 font-sans selection:bg-sky-100 selection:text-sky-900">
 
-  const t = translations[lang];
+    <header class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md z-50 border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <a href="#home" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 bg-slate-900 text-white flex items-center justify-center rounded-xl font-bold text-xl group-hover:bg-slate-800 transition-colors shadow-sm">
+                    DM
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-tight tracking-tight">Didar Miah</h1>
+                    <p class="text-xs text-slate-500 font-medium">App Developer</p>
+                </div>
+            </a>
 
-  return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
-      <div className="bg-white min-h-screen text-slate-900 font-sans selection:bg-sky-100 selection:text-sky-900">
-        <style dangerouslySetInnerHTML={{__html: `
-          html { scroll-behavior: smooth; }
-          body { -webkit-font-smoothing: antialiased; background-color: #ffffff; }
-        `}} />
-        <Header activeSection={activeSection} />
-        <main>
-          <Hero />
-          <About />
-          <Services />
-          <Projects />
-          <Skills />
-          <Process />
-          <Contact />
-        </main>
-        <Footer />
-      </div>
-    </LanguageContext.Provider>
-  );
-};
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center gap-8" id="desktop-nav">
+                <a href="#home" class="nav-link text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors relative" data-i18n="nav.home">Home</a>
+                <a href="#about" class="nav-link text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors relative" data-i18n="nav.about">About</a>
+                <a href="#services" class="nav-link text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors relative" data-i18n="nav.services">Services</a>
+                <a href="#projects" class="nav-link text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors relative" data-i18n="nav.projects">Projects</a>
+                <a href="#skills" class="nav-link text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors relative" data-i18n="nav.skills">Skills</a>
+                <a href="#contact" class="nav-link text-sm font-semibold text-slate-600 hover:text-sky-600 transition-colors relative" data-i18n="nav.contact">Contact</a>
+            </nav>
 
-export default App;
+            <!-- Right Actions -->
+            <div class="hidden md:flex items-center gap-4">
+                <button id="lang-toggle" class="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors border border-slate-200 px-4 py-1.5 rounded-full hover:bg-slate-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="lang-label">BN</span>
+                </button>
+                <a href="#contact" class="bg-slate-900 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg" data-i18n="nav.letsTalk">
+                    Let's Talk
+                </a>
+            </div>
+
+            <!-- Mobile Toggle -->
+            <button id="mobile-menu-btn" class="md:hidden text-slate-900 p-2">
+                <svg id="menu-icon-open" class="w-7 h-7 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg id="menu-icon-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 w-full bg-white border-b border-slate-100 shadow-xl py-6 px-6 flex flex-col gap-4">
+            <a href="#home" class="mobile-nav-link text-left text-lg font-semibold py-2 border-b border-slate-50 text-slate-600" data-i18n="nav.home">Home</a>
+            <a href="#about" class="mobile-nav-link text-left text-lg font-semibold py-2 border-b border-slate-50 text-slate-600" data-i18n="nav.about">About</a>
+            <a href="#services" class="mobile-nav-link text-left text-lg font-semibold py-2 border-b border-slate-50 text-slate-600" data-i18n="nav.services">Services</a>
+            <a href="#projects" class="mobile-nav-link text-left text-lg font-semibold py-2 border-b border-slate-50 text-slate-600" data-i18n="nav.projects">Projects</a>
+            <a href="#skills" class="mobile-nav-link text-left text-lg font-semibold py-2 border-b border-slate-50 text-slate-600" data-i18n="nav.skills">Skills</a>
+            <a href="#contact" class="mobile-nav-link text-left text-lg font-semibold py-2 border-b border-slate-50 text-slate-600" data-i18n="nav.contact">Contact</a>
+            
+            <div class="flex items-center justify-between mt-4">
+               <button id="mobile-lang-toggle" class="flex items-center gap-2 text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 px-4 py-2 rounded-full w-full justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span id="mobile-lang-label">Switch to Bangla</span>
+              </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="pt-32 pb-24 lg:pt-40 lg:pb-32 px-6 max-w-4xl mx-auto flex flex-col justify-center min-h-[90vh] text-center items-center">
+            
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 text-slate-700 text-sm font-semibold mb-8 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span data-i18n="hero.badge">Available for New Projects</span>
+            </div>
+            
+            <!-- Main Typography -->
+            <h1 class="text-6xl md:text-7xl lg:text-8xl font-extrabold text-slate-900 leading-tight mb-4 tracking-tight">
+                <span data-i18n="hero.greeting">Didar </span>
+                <span data-i18n="hero.highlight" class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-sky-500">Miah</span>
+            </h1>
+            
+            <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-8 whitespace-pre-line leading-snug" data-i18n="hero.title">
+                Independent App Developer<br>& Digital Creator
+            </h2>
+            
+            <p class="text-xl md:text-2xl text-slate-600 mb-12 max-w-3xl leading-relaxed font-medium mx-auto" data-i18n="hero.desc">
+                I build modern mobile applications, web solutions and digital products with a focus on clean design, performance and real-world impact.
+            </p>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-14 w-full">
+                <a href="#projects" class="w-full sm:w-auto justify-center bg-slate-900 text-white px-10 py-5 rounded-full font-semibold text-lg hover:bg-slate-800 transition-all flex items-center gap-2 group shadow-lg hover:shadow-xl">
+                    <span data-i18n="hero.viewProjects">View My Projects</span>
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+                <a href="#contact" class="w-full sm:w-auto justify-center bg-white text-slate-900 border border-slate-200 shadow-sm px-10 py-5 rounded-full font-semibold text-lg hover:border-slate-400 hover:bg-slate-50 transition-all" data-i18n="hero.contactMe">
+                    Contact Me
+                </a>
+            </div>
+
+            <!-- Social Links Row (Original Brand Colors) -->
+            <div class="flex items-center justify-center gap-6">
+                <a href="https://wa.me/8801823057578" target="_blank" class="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#25D366">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                    </svg>
+                </a>
+                <a href="#" class="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#1877F2">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                </a>
+                <a href="#" class="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#FF0000">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                </a>
+                <a href="https://github.com/didarmiah001-ship-it" target="_blank" class="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#181717">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/>
+                    </svg>
+                </a>
+                <a href="mailto:didarmiah001@gmail.com" class="hover:-translate-y-1 transition-transform drop-shadow-sm hover:drop-shadow-md">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#EA4335">
+                        <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 border-t border-slate-100">
+            <div class="max-w-4xl mx-auto px-6 text-center md:text-left">
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-8" data-i18n="about.heading">About Me</h2>
+                <p class="text-xl text-slate-600 leading-relaxed font-medium mb-10" data-i18n="about.desc">
+                    I’m Didar Miah, an independent app developer and digital creator. I specialize in mobile app development, web solutions and modern UI/UX design. I love creating useful digital products that solve real problems and make life easier.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-12 text-left w-max mx-auto md:mx-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
+                        <span class="text-slate-900 font-semibold" data-i18n="about.qualities.0">Creative Problem Solver</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
+                        <span class="text-slate-900 font-semibold" data-i18n="about.qualities.1">Modern UI/UX Focused</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
+                        <span class="text-slate-900 font-semibold" data-i18n="about.qualities.2">Reliable & Dedicated</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.8)]"></div>
+                        <span class="text-slate-900 font-semibold" data-i18n="about.qualities.3">Always Learning</span>
+                    </div>
+                </div>
+                <div class="flex justify-center md:justify-start">
+                   <button class="bg-white border border-slate-200 text-slate-900 px-8 py-4 rounded-full font-semibold hover:border-slate-400 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                      <span data-i18n="about.downloadCv">Download CV</span>
+                   </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="py-24 border-t border-slate-100 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-16 max-w-2xl">
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4" data-i18n="services.heading">What I Do</h2>
+                    <p class="text-slate-600 text-xl font-medium" data-i18n="services.subtitle">I provide end-to-end digital solutions from idea to launch.</p>
+                </div>
+                <!-- Equal height grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+                    
+                    <!-- Service 1 -->
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                        <div class="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shrink-0">
+                            <svg class="w-7 h-7 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 shrink-0" data-i18n="services.items.0.title">Mobile App Development</h3>
+                        <p class="text-slate-600 leading-relaxed font-medium flex-grow" data-i18n="services.items.0.desc">Android & iOS apps with modern technology.</p>
+                    </div>
+
+                    <!-- Service 2 -->
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                        <div class="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shrink-0">
+                            <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 shrink-0" data-i18n="services.items.1.title">Web Development</h3>
+                        <p class="text-slate-600 leading-relaxed font-medium flex-grow" data-i18n="services.items.1.desc">Modern, responsive and high-performance websites.</p>
+                    </div>
+
+                    <!-- Service 3 -->
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                        <div class="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shrink-0">
+                            <svg class="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 shrink-0" data-i18n="services.items.2.title">UI/UX Design</h3>
+                        <p class="text-slate-600 leading-relaxed font-medium flex-grow" data-i18n="services.items.2.desc">Clean, modern and user-friendly interfaces.</p>
+                    </div>
+
+                    <!-- Service 4 -->
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                        <div class="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shrink-0">
+                            <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 shrink-0" data-i18n="services.items.3.title">Digital Solutions</h3>
+                        <p class="text-slate-600 leading-relaxed font-medium flex-grow" data-i18n="services.items.3.desc">Custom digital solutions for businesses and organizations.</p>
+                    </div>
+
+                    <!-- Service 5 -->
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                        <div class="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shrink-0">
+                            <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3 shrink-0" data-i18n="services.items.4.title">App Maintenance</h3>
+                        <p class="text-slate-600 leading-relaxed font-medium flex-grow" data-i18n="services.items.4.desc">Ongoing support and updates to keep applications running smoothly.</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-24 border-t border-slate-100 px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-16">
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4" data-i18n="projects.heading">My Projects</h2>
+                    <p class="text-slate-600 text-xl font-medium" data-i18n="projects.desc">Useful digital platforms built with modern technology for real people and real needs.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                    <!-- Project 1 - MIA ONE -->
+                    <div class="bg-white border border-slate-200 shadow-sm p-8 md:p-10 rounded-3xl group hover:shadow-lg transition-shadow flex flex-col h-full">
+                        <span class="text-purple-600 font-bold tracking-widest uppercase text-xs mb-3 block shrink-0" data-i18n="projects.mia.category">E-Commerce Platform</span>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">MIA ONE</h3>
+                        <p class="text-slate-600 text-lg mb-8 leading-relaxed font-medium flex-grow" data-i18n="projects.mia.desc">
+                            A modern shopping and digital commerce platform designed to provide a simple and convenient experience.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8 shrink-0">
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div><span data-i18n="projects.mia.features.0">Online Shopping</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div><span data-i18n="projects.mia.features.1">Secure Payment</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div><span data-i18n="projects.mia.features.2">Mobile Friendly</span>
+                            </div>
+                        </div>
+                        <div class="shrink-0 mt-auto">
+                            <a href="https://miaone.shop" target="_blank" class="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-purple-600 transition-colors shadow-sm">
+                                <span data-i18n="projects.visitWebsite">Visit Website</span> 
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 - Dasattar Foundation -->
+                    <div class="bg-white border border-slate-200 shadow-sm p-8 md:p-10 rounded-3xl group hover:shadow-lg transition-shadow flex flex-col h-full">
+                        <span class="text-emerald-600 font-bold tracking-widest uppercase text-xs mb-3 block shrink-0" data-i18n="projects.dasattar.category">Community & Welfare Platform</span>
+                        <h3 class="text-3xl font-extrabold text-slate-900 mb-4 shrink-0">Dasattar Foundation</h3>
+                        <p class="text-slate-600 text-lg mb-8 leading-relaxed font-medium flex-grow" data-i18n="projects.dasattar.desc">
+                            A digital platform for managing members, donations, activities and community welfare.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8 shrink-0">
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="projects.dasattar.features.0">Member Management</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="projects.dasattar.features.1">Donation Tracking</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="projects.dasattar.features.2">Activity Management</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-slate-700 font-semibold text-sm flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div><span data-i18n="projects.dasattar.features.3">Financial Reports</span>
+                            </div>
+                        </div>
+                        <div class="shrink-0 mt-auto">
+                            <a href="https://dasattarfoundationxyz.xyz/" target="_blank" class="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3.5 rounded-full font-semibold hover:bg-emerald-600 transition-colors shadow-sm">
+                                <span data-i18n="projects.viewProject">View Project</span> 
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="py-24 border-t border-slate-100 px-6 text-center max-w-4xl mx-auto">
+            <h2 class="text-4xl font-extrabold text-slate-900 mb-12" data-i18n="skills.heading">Skills & Technologies</h2>
+            <div class="flex flex-wrap justify-center gap-4">
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">Flutter</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">React</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">Firebase</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">Node.js</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">JavaScript</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">HTML5</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">CSS3</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">Figma</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">Git</div>
+                <div class="px-6 py-3 bg-white border border-slate-200 shadow-sm text-slate-900 font-bold rounded-full cursor-default hover:border-sky-500 hover:text-sky-600 transition-all hover:shadow-md">GitHub</div>
+            </div>
+        </section>
+
+        <section class="py-24 border-t border-slate-100 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-4xl font-extrabold text-center text-slate-900 mb-20" data-i18n="process.heading">How I Work</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
+                    <!-- Connecting line for desktop -->
+                    <div class="hidden md:block absolute top-10 left-[12%] right-[12%] h-[2px] bg-slate-100"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-white border-[6px] border-slate-50 shadow-md rounded-full flex items-center justify-center text-xl font-bold text-sky-600 mb-6 group hover:border-sky-100 transition-colors">01</div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900" data-i18n="process.steps.0.title">Plan</h3>
+                        <p class="text-slate-500 font-medium leading-relaxed" data-i18n="process.steps.0.desc">Understand requirements and define the solution.</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-white border-[6px] border-slate-50 shadow-md rounded-full flex items-center justify-center text-xl font-bold text-sky-600 mb-6 group hover:border-sky-100 transition-colors">02</div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900" data-i18n="process.steps.1.title">Design</h3>
+                        <p class="text-slate-500 font-medium leading-relaxed" data-i18n="process.steps.1.desc">Create modern and user-friendly interfaces.</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-white border-[6px] border-slate-50 shadow-md rounded-full flex items-center justify-center text-xl font-bold text-sky-600 mb-6 group hover:border-sky-100 transition-colors">03</div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900" data-i18n="process.steps.2.title">Develop</h3>
+                        <p class="text-slate-500 font-medium leading-relaxed" data-i18n="process.steps.2.desc">Build clean and scalable software.</p>
+                    </div>
+                    <div class="relative z-10 flex flex-col items-center text-center">
+                        <div class="w-20 h-20 bg-white border-[6px] border-slate-50 shadow-md rounded-full flex items-center justify-center text-xl font-bold text-sky-600 mb-6 group hover:border-sky-100 transition-colors">04</div>
+                        <h3 class="text-xl font-bold mb-3 text-slate-900" data-i18n="process.steps.3.title">Launch</h3>
+                        <p class="text-slate-500 font-medium leading-relaxed" data-i18n="process.steps.3.desc">Test, deploy and provide support.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-24 border-t border-slate-100 px-6">
+            <div class="max-w-5xl mx-auto bg-[#0f172a] rounded-[2.5rem] p-10 md:p-16 lg:p-20 text-center shadow-2xl">
+                
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight" data-i18n="contact.heading">
+                    Let’s Build Something Great Together
+                </h2>
+                
+                <p class="text-slate-300 text-lg md:text-xl font-medium mb-12 max-w-2xl mx-auto leading-relaxed" data-i18n="contact.desc">
+                    Have a project idea or want to collaborate? Feel free to reach out. I'm always open to new opportunities.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mb-16">
+                    <a href="mailto:didarmiah001@gmail.com" class="w-full sm:w-auto bg-white text-slate-900 px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg> 
+                        <span data-i18n="contact.sendMsg">Send Message</span>
+                    </a>
+                    <a href="https://wa.me/8801823057578" target="_blank" class="w-full sm:w-auto bg-[#25D366] text-white px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-lg">
+                        <svg class="w-6 h-6 fill-white" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                        </svg>
+                        WhatsApp
+                    </a>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center justify-center gap-x-8 gap-y-4 text-white/90 font-medium text-sm md:text-base">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 bg-rose-500 rounded-full"></span>
+                        <span data-i18n="contact.location">Location</span>: <span data-i18n="contact.locValue">Bangladesh</span>
+                    </div>
+                    <div class="hidden md:block w-1 h-1 bg-white/20 rounded-full"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 bg-sky-500 rounded-full"></span>
+                        didarmiah001@gmail.com
+                    </div>
+                    <div class="hidden md:block w-1 h-1 bg-white/20 rounded-full"></div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span>
+                        01823057578
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-100 bg-white pt-16 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+                
+                <div class="flex items-center gap-4 text-left">
+                    <div class="w-12 h-12 bg-slate-900 text-white flex items-center justify-center rounded-xl font-bold text-xl shadow-sm">
+                        DM
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 leading-tight">Didar Miah</h2>
+                        <p class="text-slate-500 font-medium text-sm" data-i18n="footer.tagline">Independent App Developer & Digital Creator</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <a href="https://wa.me/8801823057578" target="_blank" class="hover:-translate-y-1 transition-transform drop-shadow-sm">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                    </a>
+                    <a href="#" class="hover:-translate-y-1 transition-transform drop-shadow-sm">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="#" class="hover:-translate-y-1 transition-transform drop-shadow-sm">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </a>
+                    <a href="https://github.com/didarmiah001-ship-it" target="_blank" class="hover:-translate-y-1 transition-transform drop-shadow-sm">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#181717"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                    </a>
+                    <a href="mailto:didarmiah001@gmail.com" class="hover:-translate-y-1 transition-transform drop-shadow-sm">
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="#EA4335"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>
+                    </a>
+                </div>
+                
+            </div>
+            
+            <div class="flex justify-center border-t border-slate-100 pt-8">
+                <p class="text-slate-400 font-medium text-sm text-center" data-i18n="footer.copyright">© 2026 Didar Miah. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Translations Data
+        const translations = {
+            en: {
+                nav: { home: "Home", about: "About", services: "Services", projects: "Projects", skills: "Skills", contact: "Contact", letsTalk: "Let's Talk" },
+                hero: { badge: "Available for New Projects", greeting: "Didar ", highlight: "Miah", title: "Independent App Developer\n& Digital Creator", desc: "I build modern mobile applications, web solutions and digital products with a focus on clean design, performance and real-world impact.", viewProjects: "View My Projects", contactMe: "Contact Me" },
+                about: { heading: "About Me", desc: "I’m Didar Miah, an independent app developer and digital creator. I specialize in mobile app development, web solutions and modern UI/UX design. I love creating useful digital products that solve real problems and make life easier.", downloadCv: "Download CV", qualities: ["Creative Problem Solver", "Modern UI/UX Focused", "Reliable & Dedicated", "Always Learning"] },
+                services: { heading: "What I Do", subtitle: "I provide end-to-end digital solutions from idea to launch.", items: [ { title: "Mobile App Development", desc: "Android & iOS apps with modern technology." }, { title: "Web Development", desc: "Modern, responsive and high-performance websites." }, { title: "UI/UX Design", desc: "Clean, modern and user-friendly interfaces." }, { title: "Digital Solutions", desc: "Custom digital solutions for businesses and organizations." }, { title: "App Maintenance", desc: "Ongoing support and updates to keep applications running smoothly." } ] },
+                projects: { heading: "My Projects", desc: "Useful digital platforms built with modern technology for real people and real needs.", visitWebsite: "Visit Website", viewProject: "View Project", mia: { category: "E-Commerce Platform", desc: "A modern shopping and digital commerce platform designed to provide a simple and convenient experience.", features: ["Online Shopping", "Secure Payment", "Mobile Friendly"] }, dasattar: { category: "Community & Welfare Platform", desc: "A digital platform for managing members, donations, activities and community welfare.", features: ["Member Management", "Donation Tracking", "Activity Management", "Financial Reports"] } },
+                skills: { heading: "Skills & Technologies" },
+                process: { heading: "How I Work", steps: [ { title: "Plan", desc: "Understand requirements and define the solution." }, { title: "Design", desc: "Create modern and user-friendly interfaces." }, { title: "Develop", desc: "Build clean and scalable software." }, { title: "Launch", desc: "Test, deploy and provide support." } ] },
+                contact: { heading: "Let’s Build Something Great Together", desc: "Have a project idea or want to collaborate? Feel free to reach out. I'm always open to new opportunities.", sendMsg: "Send Message", location: "Location", locValue: "Bangladesh" },
+                footer: { tagline: "Independent App Developer & Digital Creator", copyright: "© 2026 Didar Miah. All rights reserved." }
+            },
+            bn: {
+                nav: { home: "হোম", about: "সম্পর্কে", services: "সার্ভিস", projects: "প্রজেক্ট", skills: "দক্ষতা", contact: "যোগাযোগ", letsTalk: "কথা বলি" },
+                hero: { badge: "নতুন প্রজেক্টের জন্য উন্মুক্ত", greeting: "দিদার ", highlight: "মিয়া", title: "স্বাধীন অ্যাপ ডেভেলপার\nও ডিজিটাল ক্রিয়েটর", desc: "আধুনিক ও ব্যবহারবান্ধব অ্যাপ্লিকেশন তৈরি করি, যা মানুষের জীবনে বাস্তব সমাধান এনে দেয়।", viewProjects: "আমার প্রজেক্টগুলো দেখুন", contactMe: "যোগাযোগ করুন" },
+                about: { heading: "আমি যা করি", desc: "আমি দিদার মিয়া, একজন স্বাধীন অ্যাপ ডেভেলপার ও ডিজিটাল ক্রিয়েটর। আধুনিক মোবাইল অ্যাপ, ওয়েব সলিউশন এবং UI/UX ডিজাইন নিয়ে কাজ করি। মানুষের বাস্তব সমস্যা সমাধান করে এমন সহজ, ব্যবহারবান্ধব ও কার্যকর ডিজিটাল পণ্য তৈরি করতে ভালোবাসি।", downloadCv: "সিভি ডাউনলোড", qualities: ["সৃজনশীল সমস্যা সমাধানকারী", "আধুনিক UI/UX ফোকাসড", "নির্ভরযোগ্য ও নিবেদিত", "সর্বদা শিখতে আগ্রহী"] },
+                services: { heading: "আমার পরিষেবাসমূহ", subtitle: "আইডিয়া থেকে লঞ্চ পর্যন্ত আমি সম্পূর্ণ ডিজিটাল সলিউশন প্রদান করি।", items: [ { title: "মোবাইল অ্যাপ ডেভেলপমেন্ট", desc: "আধুনিক প্রযুক্তির সাহায্যে অ্যান্ড্রয়েড ও আইওএস অ্যাপ।" }, { title: "ওয়েব ডেভেলপমেন্ট", desc: "আধুনিক, রেস্পন্সিভ এবং দ্রুতগতির ওয়েবসাইট।" }, { title: "UI/UX ডিজাইন", desc: "ক্লিন, আধুনিক এবং ব্যবহারবান্ধব ইন্টারফেস।" }, { title: "ডিজিটাল সলিউশন", desc: "ব্যবসা এবং প্রতিষ্ঠানের জন্য কাস্টম ডিজিটাল সমাধান।" }, { title: "অ্যাপ রক্ষণাবেক্ষণ", desc: "অ্যাপ্লিকেশনগুলো মসৃণভাবে চালানোর জন্য চলমান সাপোর্ট এবং আপডেট।" } ] },
+                projects: { heading: "আমার প্রজেক্টসমূহ", desc: "আধুনিক প্রযুক্তি দিয়ে তৈরি মানুষের বাস্তব প্রয়োজনের জন্য প্রয়োজনীয় ডিজিটাল প্ল্যাটফর্ম।", visitWebsite: "ওয়েবসাইট ভিজিট করুন", viewProject: "প্রজেক্ট দেখুন", mia: { category: "ই-কমার্স প্ল্যাটফর্ম", desc: "একটি আধুনিক শপিং ও ডিজিটাল কমার্স প্ল্যাটফর্ম, যা সহজ ও সুবিধাজনক কেনাকাটার অভিজ্ঞতা দেওয়ার জন্য তৈরি।", features: ["অনলাইন শপিং", "নিরাপদ পেমেন্ট", "মোবাইল ফ্রেন্ডলি"] }, dasattar: { category: "কমিউনিটি ও ওয়েলফেয়ার প্ল্যাটফর্ম", desc: "সদস্য, অনুদান, কার্যক্রম এবং সামাজিক কল্যাণ ব্যবস্থাপনার জন্য একটি ডিজিটাল প্ল্যাটফর্ম।", features: ["সদস্য ব্যবস্থাপনা", "অনুদান ট্র্যাকিং", "কার্যক্রম ব্যবস্থাপনা", "আর্থিক প্রতিবেদন"] } },
+                skills: { heading: "যে প্রযুক্তিগুলো নিয়ে কাজ করি" },
+                process: { heading: "কাজের ধাপ", steps: [ { title: "পরিকল্পনা", desc: "প্রয়োজনীয়তা বোঝা এবং সমাধান নির্ধারণ করা।" }, { title: "ডিজাইন", desc: "আধুনিক এবং ব্যবহারবান্ধব ইন্টারফেস তৈরি করা।" }, { title: "ডেভেলপ", desc: "ক্লিন এবং স্কেলেবল সফটওয়্যার তৈরি করা।" }, { title: "লঞ্চ", desc: "টেস্ট, ডিপ্লয় এবং সাপোর্ট প্রদান করা।" } ] },
+                contact: { heading: "চলুন একসাথে কিছু অসাধারণ তৈরি করি", desc: "আপনার কি কোনো প্রজেক্ট আইডিয়া আছে বা একসাথে কাজ করতে চান? নির্দ্বিধায় যোগাযোগ করুন। আমি সবসময় নতুন সুযোগের জন্য উন্মুক্ত।", sendMsg: "মেসেজ পাঠান", location: "অবস্থান", locValue: "বাংলাদেশ" },
+                footer: { tagline: "প্রযুক্তির মাধ্যমে বাস্তব সমাধান", copyright: "© ২০২৬ দিদার মিয়া। সর্বস্বত্ব সংরক্ষিত।" }
+            }
+        };
+
+        // 2. Language State Management
+        let currentLang = localStorage.getItem('portfolio_lang') || 'en';
+
+        function resolvePath(obj, path) {
+            return path.split('.').reduce((prev, curr) => prev && prev[curr], obj);
+        }
+
+        function applyTranslations() {
+            const t = translations[currentLang];
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const val = resolvePath(t, key);
+                
+                if (val) {
+                    if (key === 'hero.title') {
+                        el.innerHTML = val.replace(/\n/g, '<br/>');
+                    } else {
+                        el.textContent = val;
+                    }
+                }
+            });
+
+            // Update toggle button text
+            document.getElementById('lang-label').textContent = currentLang === 'en' ? 'BN' : 'EN';
+            document.getElementById('mobile-lang-label').textContent = currentLang === 'en' ? 'Switch to Bangla' : 'Switch to English';
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'bn' : 'en';
+            localStorage.setItem('portfolio_lang', currentLang);
+            applyTranslations();
+            closeMobileMenu();
+        }
+
+        // Initialize translations
+        applyTranslations();
+
+        // 3. Event Listeners
+        document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
+        document.getElementById('mobile-lang-toggle').addEventListener('click', toggleLanguage);
+
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const iconOpen = document.getElementById('menu-icon-open');
+        const iconClose = document.getElementById('menu-icon-close');
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+            iconOpen.classList.toggle('hidden');
+            iconClose.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+            iconOpen.classList.remove('hidden');
+            iconClose.classList.add('hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        // Close menu on link click
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        // 4. Scroll Spy (Active Navigation Links)
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".nav-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            const scrollPos = window.scrollY + 200;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove("text-sky-600", "drop-shadow-[0_0_8px_rgba(2,132,199,0.5)]");
+                if (link.getAttribute("href") === `#${current}`) {
+                    link.classList.add("text-sky-600", "drop-shadow-[0_0_8px_rgba(2,132,199,0.5)]");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
